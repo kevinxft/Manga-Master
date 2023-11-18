@@ -2,10 +2,13 @@ import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { initEvents } from './events'
+
+let mainWindow: BrowserWindow
 
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -50,6 +53,8 @@ app.whenReady().then(() => {
   })
 
   createWindow()
+
+  initEvents(mainWindow)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
