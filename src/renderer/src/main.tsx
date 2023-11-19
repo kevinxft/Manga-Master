@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import Welcome from './pages/Welcome'
+import Gallary from './pages/Gallary'
 import './index.css'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 
@@ -13,6 +14,10 @@ const router = createHashRouter([
   {
     path: '/welcome',
     element: <Welcome />
+  },
+  {
+    path: '/gallary',
+    element: <Gallary />
   }
 ])
 

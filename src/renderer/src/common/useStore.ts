@@ -1,13 +1,18 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export type MangaType = {
+  path: string
+  post: string
+}
+
 type ValueType = {
   rootPath: string
-  mangas: string[]
+  mangas: MangaType[]
 }
 
 type FunctionType = {
-  setMangas: (mangas: string[]) => void
+  setMangas: (mangas: MangaType[]) => void
   setRootPath: (rootPath: string) => void
 }
 

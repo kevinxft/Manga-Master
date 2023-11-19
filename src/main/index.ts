@@ -1,8 +1,9 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, protocol, net } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { initEvents } from './events'
+import { CUSTOM_PREFIX } from './constants'
 
 let mainWindow: BrowserWindow
 
@@ -33,6 +34,8 @@ function createWindow(): void {
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    // Open the DevTools
+    mainWindow.webContents.openDevTools()
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
@@ -55,6 +58,11 @@ app.whenReady().then(() => {
   createWindow()
 
   initEvents(mainWindow)
+
+  protocol.handle(CUSTOM_PREFIX, async (request) => {
+    const url = request.url.replace(`${CUSTOM_PREFIX}://`, 'file://')
+    return net.fetch(url)
+  })
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
