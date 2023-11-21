@@ -14,7 +14,7 @@ function App(): JSX.Element {
     } else {
       navigate('/welcome')
     }
-  }, [rootPath])
+  }, [])
 
   return (
     <div className="flex h-screen bg-slate-600">

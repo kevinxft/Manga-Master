@@ -9,9 +9,10 @@ function WelcomePage(): JSX.Element {
     const path = await window.electron.ipcRenderer.invoke('select-folder')
     if (path) {
       setRootPath(path)
-      navigate('/')
+      setTimeout(() => {
+        navigate('/')
+      }, 0)
     }
-    console.log(path)
   }
   return (
     <div className="grid h-screen bg-slate-500">
