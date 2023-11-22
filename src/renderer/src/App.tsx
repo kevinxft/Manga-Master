@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useStore } from '@renderer/common/useStore'
 import MangaWall from '@renderer/components/MangaWall'
-import { initMangas, generateTags } from '@renderer/common/utils'
+import { initMangas } from '@renderer/common/utils'
 
 function App(): JSX.Element {
   const rootPath = useStore((state) => state.rootPath)
