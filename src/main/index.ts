@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, protocol, net } from 'electron'
+import { app, shell, BrowserWindow, protocol, net, screen } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -9,9 +9,11 @@ let mainWindow: BrowserWindow
 
 function createWindow(): void {
   // Create the browser window.
+  const display = screen.getPrimaryDisplay()
+
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: display.workArea.width / 2,
+    height: display.workArea.height,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),

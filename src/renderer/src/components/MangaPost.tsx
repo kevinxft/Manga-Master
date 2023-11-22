@@ -2,6 +2,9 @@ import { MangaType } from '@renderer/common/useStore'
 import { useState } from 'react'
 import { InView } from 'react-intersection-observer'
 
+const isDev = process.env.NODE_ENV === 'development'
+const prefix = isDev ? `${window.location.origin}/#` : window.location.href
+
 function formatMangaName(path: string) {
   return path.split('/').pop()
 }
@@ -9,8 +12,7 @@ function formatMangaName(path: string) {
 function MangaPost({ path, post }: MangaType) {
   const [isInView, setInView] = useState(false)
   const onOpen = (path: string) => {
-    const url = `${window.location.href}gallary?path=${path}`
-    window.electron.ipcRenderer.send('open-window', url)
+    window.electron.ipcRenderer.send('open-window', `${prefix}/gallary?path=${path}`)
   }
   return (
     <InView

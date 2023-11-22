@@ -12,10 +12,12 @@ const appendPrefix = (path) => {
 
 let newWin
 let preUrl
+let isScaning = false
 
 type MangaType = {
   path: string
   post: string
+  info: fs.Stats
 }
 
 const traverse = async (dir, mangas: MangaType[] = []) => {
@@ -25,16 +27,54 @@ const traverse = async (dir, mangas: MangaType[] = []) => {
       traverse(fullPath, mangas)
     } else {
       if (imageExtensionRegex.test(file)) {
-        console.log(file)
         mangas.push({
           path: dir,
-          post: appendPrefix(path.join(dir, file))
+          post: appendPrefix(path.join(dir, file)),
+          info: fs.statSync(dir)
         })
         break
       }
     }
   }
   return mangas
+}
+
+const traverseMangas = (dir, callback) => {
+  const mangas: MangaType[] = []
+  let count = 0
+  const traverse = async (directory) => {
+    const files = await fs.promises.readdir(directory)
+    for (const file of files) {
+      const fullPath = path.join(directory, file)
+      if (fs.statSync(fullPath).isDirectory()) {
+        await traverse(fullPath)
+      } else {
+        if (imageExtensionRegex.test(file)) {
+          mangas.push({
+            path: directory,
+            post: appendPrefix(path.join(directory, file)),
+            info: fs.statSync(dir)
+          })
+          count++
+          if (mangas.length > 0 && count % 50 === 0) {
+            callback({
+              data: [...mangas],
+              done: false
+            })
+            count = 0
+          }
+          break
+        }
+      }
+    }
+  }
+  traverse(dir).then(() => {
+    callback({
+      data: [...mangas],
+      done: true
+    })
+    isScaning = false
+  })
 }
 
 const getAllImg = async (dir: string) => {
@@ -48,6 +88,16 @@ const getAllImg = async (dir: string) => {
 }
 
 export const initEvents = (mainWindow: BrowserWindow) => {
+  ipcMain.on('scan-mangas', async (event, path) => {
+    if (isScaning) {
+      return
+    }
+    isScaning = true
+    await traverseMangas(path, (result) => {
+      event.sender.send('reply-mangas', result)
+    })
+  })
+
   ipcMain.handle('select-folder', async () => {
     try {
       const result = await dialog.showOpenDialog(mainWindow, { properties: ['openDirectory'] })
@@ -63,7 +113,6 @@ export const initEvents = (mainWindow: BrowserWindow) => {
   })
 
   ipcMain.handle('get-imgs', async (_, path) => {
-    console.log(path)
     const all = await getAllImg(path)
     return all
   })
@@ -89,13 +138,16 @@ export const initEvents = (mainWindow: BrowserWindow) => {
     } else {
       newWin && newWin.close()
     }
+    console.log(url)
+    const title = url.split('/').pop() || 'Gallary'
     const display = screen.getDisplayMatching(mainWindow.getBounds())
     newWin = new BrowserWindow({
       width: display.workArea.width,
       height: display.workArea.height,
       x: display.workArea.x,
       y: display.workArea.y,
-      title: 'Gallary',
+      title,
+      titleBarStyle: 'hiddenInset',
       autoHideMenuBar: true,
       webPreferences: {
         preload: join(__dirname, '../preload/index.js'),
@@ -103,13 +155,13 @@ export const initEvents = (mainWindow: BrowserWindow) => {
       }
     })
 
-    // is.dev && newWin.webContents.openDevTools()
+    is.dev && newWin.webContents.openDevTools()
 
     preUrl = url
     newWin.loadURL(url)
     newWin.focus()
     newWin.on('closed', () => {
-      console.log('新窗口被关闭')
+      console.log('窗口被关闭')
       newWin = null
     })
   })
