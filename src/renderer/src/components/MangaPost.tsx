@@ -9,14 +9,7 @@ function formatMangaName(path: string) {
 function MangaPost({ path, post }: MangaType) {
   const [isInView, setInView] = useState(false)
   const onOpen = (path: string) => {
-    console.log(process.env.NODE_ENV)
-    const isDev = process.env.NODE_ENV === 'development'
-    console.log('isDev: ', isDev)
-    let prefix = window.location.href
-    if (!isDev) {
-      prefix = prefix + '/#/'
-    }
-    console.log(prefix)
+    const prefix = window.location.origin + window.location.pathname + '#/'
     window.electron.ipcRenderer.send('open-window', `${prefix}gallary?path=${path}`)
   }
   return (

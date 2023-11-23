@@ -34,14 +34,29 @@ export async function generateTags(array) {
   return Array.from(tags)
 }
 
-export async function initMangas(rootPath, callback, done) {
+function scanMangas(rootPath, callback) {
   window.electron.ipcRenderer.send('scan-mangas', rootPath)
-  window.electron.ipcRenderer.on('reply-mangas', async (_, result) => {
+  window.electron.ipcRenderer.on('reply-mangas', (_, result) => {
+    callback(result)
+  })
+}
+
+export async function initMangas(rootPath, callback, done) {
+  scanMangas(rootPath, async (result) => {
     callback(result.data)
     if (result.done) {
       const tags = await generateTags(result.data)
       done(tags)
       console.log(tags)
+    }
+  })
+}
+
+export async function syncMangas(rootPath, done) {
+  scanMangas(rootPath, async (result) => {
+    if (result.done) {
+      const tags = await generateTags(result.data)
+      done(result.data, tags)
     }
   })
 }

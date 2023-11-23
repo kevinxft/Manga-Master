@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Button } from 'antd'
+import { message, FloatButton } from 'antd'
 import {
   FullscreenExitOutlined,
   FullscreenOutlined,
@@ -14,6 +14,8 @@ function Gallary() {
   const [current, setCurrent] = useState(0)
   const [fitWidth, setFitWith] = useState(false)
 
+  const [messageApi, contextHolder] = message.useMessage()
+
   const getImgs = async (path: string) => {
     const result = await window.electron.ipcRenderer.invoke('get-imgs', path)
     setImgs(result)
@@ -24,6 +26,10 @@ function Gallary() {
       if (value > 0) {
         return value - 1
       }
+      messageApi.open({
+        type: 'warning',
+        content: '已经是第一张了'
+      })
       return value
     })
   }
@@ -33,6 +39,10 @@ function Gallary() {
       if (value < imgs.length - 1) {
         return value + 1
       }
+      messageApi.open({
+        type: 'warning',
+        content: '已经是最后一张了'
+      })
       return value
     })
   }
@@ -73,23 +83,23 @@ function Gallary() {
       {imgs.length > 0 && (
         <img className={fitWidth ? 'w-full' : ''} onClick={onNext} src={imgs[current]} />
       )}
-      <div className="flex items-center justify-center p-2 mt-10 rounded-md bg-white/60 ">
-        <Button disabled={current === 0} icon={<LeftOutlined />} type="text" onClick={onPrev} />
-        <Button
-          disabled={current === imgs.length - 1}
-          icon={<RightOutlined />}
-          type="text"
-          onClick={onNext}
-        />
-        <Button
-          type="text"
+
+      {contextHolder}
+
+      <FloatButton
+        style={{ top: 50, background: '#fff' }}
+        description={imgs.length}
+        badge={{ count: current + 1, overflowCount: 999 }}
+      />
+
+      <FloatButton.Group className="bg-white shadow-sm" shape="square">
+        <FloatButton onClick={onPrev} icon={<LeftOutlined />} />
+        <FloatButton onClick={onNext} icon={<RightOutlined />} />
+        <FloatButton
           onClick={() => setFitWith((value) => !value)}
           icon={fitWidth ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
         />
-        <div className="px-2 text-sm">
-          {current + 1} / {imgs.length}
-        </div>
-      </div>
+      </FloatButton.Group>
     </div>
   )
 }

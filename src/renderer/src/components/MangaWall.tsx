@@ -1,7 +1,9 @@
 import { useStore } from '@renderer/common/useStore'
 import { useInView } from 'react-intersection-observer'
+import { syncMangas } from '@renderer/common/utils'
 import MangaPost from './MangaPost'
-import { createRef, useEffect, useState } from 'react'
+import TagWall from './TagWall'
+import { useRef, useState } from 'react'
 import {
   SearchOutlined,
   VerticalAlignBottomOutlined,
@@ -9,26 +11,44 @@ import {
   SyncOutlined,
   SettingOutlined,
   VerticalAlignTopOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  LoadingOutlined
 } from '@ant-design/icons'
-import { Button, FloatButton, Input, Modal, Affix, Tag } from 'antd'
+import { FloatButton, Input, Modal, Affix, Tag } from 'antd'
 
 function filterMangas(mangas, tags) {
   if (tags.length) {
-    return mangas.filter((manga) => tags.some((tag) => manga.path.includes(tag)))
+    return mangas.filter((manga) =>
+      tags.some((tag) => manga.path.toLocaleLowerCase().includes(tag.toLocaleLowerCase()))
+    )
   }
   return mangas
 }
 
 function MangaWall(): JSX.Element {
   const mangas = useStore((state) => state.mangas)
-  const tags = useStore((state) => state.tags)
+  const rootPath = useStore((state) => state.rootPath)
+  const setMangas = useStore((statte) => statte.setMangas)
+  const setAutoTags = useStore((state) => state.setAutoTags)
+  const search = useStore((state) => state.search)
   const setSearch = useStore((state) => state.setSearch)
-  const [showTags, setShowTags] = useState(false)
+  const [showTags, setShowTags] = useState(true)
   const [showSearch, setShowSearch] = useState(false)
-  const [searchTags, setSearchTags] = useState<string[]>([])
+  const [syncing, setSyncing] = useState(false)
 
-  const container = createRef<HTMLDivElement>()
+  const onSyncMangas = () => {
+    if (syncing) {
+      return
+    }
+    setSyncing(true)
+    syncMangas(rootPath, (data, tags) => {
+      setMangas(data)
+      setAutoTags(tags)
+      setSyncing(false)
+    })
+  }
+
+  const container = useRef<HTMLDivElement>(null)
 
   const { ref } = useInView({
     threshold: 0
@@ -38,7 +58,6 @@ function MangaWall(): JSX.Element {
     if (container.current) {
       container.current.scrollTo({ top: 0 })
     }
-    console.dir(container.current)
   }
 
   const onBottom = () => {
@@ -51,27 +70,16 @@ function MangaWall(): JSX.Element {
     setShowTags(true)
   }
 
-  const onToggleTags = (tag: string) => {
-    setSearchTags((value) => {
-      if (value.includes(tag)) {
-        return value.filter((t) => t !== tag)
-      }
-      return [...value, tag]
-    })
+  const onToggleTags = (tag) => {
+    setSearch(search.filter((search) => search !== tag))
   }
-
-  useEffect(() => {
-    console.log('searchTags', searchTags)
-
-    setSearch(searchTags)
-  }, [searchTags])
 
   return (
     <>
       <Affix offsetTop={0}>
-        {searchTags.length > 0 && (
-          <div className="flex items-center justify-end pt-2">
-            {searchTags.map((tag) => (
+        {search.length > 0 && (
+          <div className="flex items-center px-2 py-1">
+            {search.map((tag) => (
               <Tag key={tag} closeIcon={<CloseCircleOutlined />} onClose={() => onToggleTags(tag)}>
                 {tag}
               </Tag>
@@ -84,7 +92,7 @@ function MangaWall(): JSX.Element {
           ref={ref}
           className="grid gap-2 p-2 min-[300px]:grid-cols-2 min-[550px]:grid-cols-3 min-[800px]:grid-cols-4 min-[1050px]:grid-cols-5 min-[1300px]:grid-cols-6 min-[1550px]:grid-cols-7 min-[1800px]:grid-cols-8 min-[2050px]:grid-cols-9 min-[2300px]:grid-cols-10 min-[2550px]:grid-cols-11 min-[2800px]:grid-cols-12"
         >
-          {filterMangas(mangas, searchTags).map((manga) => (
+          {filterMangas(mangas, search).map((manga) => (
             <MangaPost key={manga.path} {...manga} />
           ))}
         </div>
@@ -99,32 +107,17 @@ function MangaWall(): JSX.Element {
           <Input.Search allowClear enterButton="搜索" />
         </Modal>
 
-        <Modal
-          title="标签"
-          open={showTags}
-          centered
-          width={1000}
-          onCancel={() => setShowTags(false)}
-          footer={() => null}
-        >
-          {tags.map((tag) => (
-            <Button
-              onClick={() => onToggleTags(tag)}
-              key={tag}
-              type={searchTags.includes(tag) ? 'primary' : 'dashed'}
-              className="m-1"
-            >
-              {tag}
-            </Button>
-          ))}
-        </Modal>
+        <TagWall showTags={showTags} setShowTags={setShowTags} />
 
         <FloatButton.Group className="bg-white shadow-sm" shape="square" style={{ right: 34 }}>
           <FloatButton onClick={onTop} icon={<VerticalAlignTopOutlined />} />
           <FloatButton onClick={() => setShowSearch(true)} icon={<SearchOutlined />} />
           <FloatButton onClick={onBottom} icon={<VerticalAlignBottomOutlined />} />
           <FloatButton onClick={onShowTags} icon={<TagsOutlined />} />
-          <FloatButton icon={<SyncOutlined />} />
+          <FloatButton
+            onClick={onSyncMangas}
+            icon={syncing ? <LoadingOutlined /> : <SyncOutlined />}
+          />
           <FloatButton icon={<SettingOutlined />} />
         </FloatButton.Group>
       </div>

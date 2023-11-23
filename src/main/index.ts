@@ -15,6 +15,7 @@ function createWindow(): void {
     width: display.workArea.width / 2,
     height: display.workArea.height,
     show: false,
+    titleBarStyle: 'hiddenInset',
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {

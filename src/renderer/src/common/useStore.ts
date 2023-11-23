@@ -11,6 +11,8 @@ type ValueType = {
   mangas: MangaType[]
   search: string[]
   tags: string[]
+  autoTags: string[]
+  favorites: string[]
 }
 
 type FunctionType = {
@@ -18,13 +20,17 @@ type FunctionType = {
   setRootPath: (rootPath: string) => void
   setSearch: (search: string[]) => void
   setTags: (tags: string[]) => void
+  setAutoTags: (autoTags: string[]) => void
+  setFavorites: (favorites: string[]) => void
 }
 
 const initState = {
   rootPath: '',
   mangas: [],
   search: [],
-  tags: []
+  tags: [],
+  autoTags: [],
+  favorites: []
 }
 
 export const useStore = create<ValueType & FunctionType>()(
@@ -34,7 +40,9 @@ export const useStore = create<ValueType & FunctionType>()(
       setMangas: (mangas) => set({ mangas }),
       setRootPath: (rootPath) => set({ rootPath }),
       setSearch: (search) => set({ search }),
-      setTags: (tags) => set({ tags })
+      setTags: (tags) => set({ tags }),
+      setAutoTags: (autoTags) => set({ autoTags }),
+      setFavorites: (favorites) => set({ favorites })
     }),
     {
       name: 'Manga-Master'
