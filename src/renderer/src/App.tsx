@@ -23,7 +23,9 @@ function App(): JSX.Element {
 
   return (
     <div className="flex flex-col h-screen bg-slate-600">
-      <div className="p-4 drag"></div>
+      <div className="flex items-end justify-end p-2 pb-1 text-sm text-slate-400 drag text-end">
+        共{mangas.length}本
+      </div>
       <MangaWall />
     </div>
   )

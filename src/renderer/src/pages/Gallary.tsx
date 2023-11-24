@@ -49,7 +49,6 @@ function Gallary() {
 
   useEffect(() => {
     const initKeyEvents = (e) => {
-      console.log(e.key)
       if (e.key === ' ') {
         e.preventDefault()
         onNext()
