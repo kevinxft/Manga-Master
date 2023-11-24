@@ -15,7 +15,7 @@ function WelcomePage(): JSX.Element {
     }
   }
   return (
-    <div className="grid h-screen bg-slate-500">
+    <div className="grid h-screen bg-slate-500 drag">
       <Button className="m-auto bg-slate-400 no-drag" type="primary" onClick={onSelectFolder}>
         打开文件夹
       </Button>

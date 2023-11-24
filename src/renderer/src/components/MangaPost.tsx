@@ -1,7 +1,5 @@
 import { MangaType } from '@renderer/common/useStore'
 import { Button } from 'antd'
-import { useState } from 'react'
-import { InView } from 'react-intersection-observer'
 import { useStore } from '@renderer/common/useStore'
 import { HeartFilled, HeartOutlined, SearchOutlined } from '@ant-design/icons'
 
@@ -10,7 +8,6 @@ function formatMangaName(path: string) {
 }
 
 function MangaPost({ path, post }: MangaType) {
-  const [isInView, setInView] = useState(false)
   const favorites = useStore((state) => state.favorites)
   const setFavorites = useStore((state) => state.setFavorites)
   const onOpen = () => {
@@ -27,14 +24,10 @@ function MangaPost({ path, post }: MangaType) {
   }
 
   return (
-    <InView
-      className="rounded-lg overflow-hidden relative bg-slate-100 aspect-[1/1.42] group"
-      as="div"
-      onChange={(inView) => !isInView && inView && setInView(true)}
-    >
+    <div className={`relative overflow-hidden rounded-lg bg-slate-100 group h-full w-full`}>
       <img
         className="absolute transition-all top-0 object-cover cursor-pointer h-[100%] max-w-none"
-        src={isInView ? post : ''}
+        src={post}
       />
       <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:bg-black/60">
         <div
@@ -66,7 +59,7 @@ function MangaPost({ path, post }: MangaType) {
           {formatMangaName(path)}
         </div>
       </div>
-    </InView>
+    </div>
   )
 }
 
