@@ -17,7 +17,9 @@ import {
   ClearOutlined,
   SearchOutlined,
   HeartOutlined,
-  HeartFilled
+  HeartFilled,
+  ClockCircleOutlined,
+  ClockCircleFilled
 } from '@ant-design/icons'
 import { FloatButton, Tag, Button } from 'antd'
 
@@ -31,6 +33,9 @@ function MangaWall(): JSX.Element {
   const setAutoTags = useStore((state) => state.setAutoTags)
   const search = useStore((state) => state.search)
   const setSearch = useStore((state) => state.setSearch)
+  const sorted = useStore((state) => state.sorted)
+  const toggleSorted = useStore((state) => state.toggleSorted)
+
   const [showTags, setShowTags] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -81,6 +86,10 @@ function MangaWall(): JSX.Element {
 
   const onShowTags = () => {
     setShowTags(true)
+  }
+
+  const onShowSettings = () => {
+    setShowSettings(true)
   }
 
   const onToggleTags = (tag) => {
@@ -157,12 +166,18 @@ function MangaWall(): JSX.Element {
           }
         />
 
+        <FloatButton
+          onClick={toggleSorted}
+          icon={
+            sorted ? <ClockCircleFilled style={{ color: '#FA7070' }} /> : <ClockCircleOutlined />
+          }
+        />
         <FloatButton onClick={onBottom} icon={<VerticalAlignBottomOutlined />} />
         <FloatButton
           onClick={onSyncMangas}
           icon={syncing ? <LoadingOutlined /> : <SyncOutlined />}
         />
-        <FloatButton onClick={() => setShowSettings(true)} icon={<SettingOutlined />} />
+        <FloatButton onClick={onShowSettings} icon={<SettingOutlined />} />
       </FloatButton.Group>
     </>
   )

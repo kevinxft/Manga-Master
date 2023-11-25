@@ -2,9 +2,9 @@ import { MangaType, useStore } from '@renderer/common/useStore'
 import Grid from 'react-virtualized/dist/es/Grid'
 import MangaPost from './MangaPost'
 import { FAVORITE_SYMBOL } from '@renderer/common/constants'
-import { useImperativeHandle, useMemo, useRef } from 'react'
+import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
-const getRowCount = (width: number) => {
+const getColCount = (width: number) => {
   const count = Math.max(Math.floor(width / 230), 1)
   return count
 }
@@ -36,26 +36,25 @@ const zip = (data: MangaType[], count = 7) => {
   return result
 }
 
-function filterMangas(mangas, search, favorites) {
+function filterMangas(mangas, search, favorites, sorted) {
+  let result = mangas
   if (search.includes(FAVORITE_SYMBOL)) {
-    console.log('zou favorites')
-    const fav = mangas.filter((manga) => favorites.includes(manga.path))
-    console.log('fav', fav)
-    return fav
-  }
-  if (search.length) {
-    return mangas.filter((manga) =>
+    result = result.filter((manga) => favorites.includes(manga.path))
+  } else if (search.length) {
+    result = result.filter((manga) =>
       search.some((tag) => manga.path.toLocaleLowerCase().includes(tag.toLocaleLowerCase()))
     )
   }
-  return mangas
+  return sorted ? result.slice().sort((a, b) => b.mtime - a.mtime) : result
 }
 
 const PostWall = ({ width, height }: PostWallType, ref) => {
   const mangas = useStore((state) => state.mangas)
   const search = useStore((state) => state.search)
   const favorites = useStore((state) => state.favorites)
+  const sorted = useStore((state) => state.sorted)
 
+  const [colCount, setColCount] = useState(7)
   const gridRef = useRef<Grid>(null)
 
   useImperativeHandle(
@@ -76,8 +75,8 @@ const PostWall = ({ width, height }: PostWallType, ref) => {
   )
 
   const list = useMemo(() => {
-    return zip(filterMangas(mangas, search, favorites))
-  }, [mangas, search, favorites])
+    return zip(filterMangas(mangas, search, favorites, sorted), colCount)
+  }, [mangas, search, favorites, sorted, colCount])
 
   function cell({ columnIndex, rowIndex, key, style }) {
     const data = list[rowIndex][columnIndex]
@@ -88,15 +87,18 @@ const PostWall = ({ width, height }: PostWallType, ref) => {
     ) : null
   }
 
-  const rowCount = getRowCount(width)
-  const columnWidth = width / rowCount
+  useEffect(() => {
+    setColCount(getColCount(width))
+  }, [width])
+
+  const columnWidth = width / colCount
   const rowHeight = columnWidth * 1.42
 
   return (
     list.length > 0 && (
       <Grid
         ref={gridRef}
-        overscanColumnCount={rowCount * 3}
+        overscanColumnCount={colCount * 3}
         cellRenderer={cell}
         columnCount={list && list[0] ? list[0].length : 1}
         columnWidth={columnWidth}

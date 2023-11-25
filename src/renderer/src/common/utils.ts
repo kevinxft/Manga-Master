@@ -9,6 +9,7 @@ function extractNestedTexts(text) {
 
   let matches
   while ((matches = regex.exec(text)) !== null) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const matchedText = matches[0]
     const innerText = matches[1] || matches[2] // 获取括号内的文本
 
@@ -47,7 +48,6 @@ export async function initMangas(rootPath, callback, done) {
     if (result.done) {
       const tags = await generateTags(result.data)
       done(tags)
-      console.log(tags)
     }
   })
 }

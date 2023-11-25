@@ -1,9 +1,8 @@
-import { app, shell, BrowserWindow, protocol, net, screen } from 'electron'
+import { app, shell, BrowserWindow, screen } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { initEvents } from './events'
-import { CUSTOM_PREFIX } from './constants'
 
 let mainWindow: BrowserWindow
 
@@ -62,15 +61,6 @@ app.whenReady().then(() => {
   createWindow()
 
   initEvents(mainWindow)
-
-  protocol.handle(CUSTOM_PREFIX, async (request) => {
-    const url = request.url.replace(`${CUSTOM_PREFIX}://`, 'file://')
-    const resp = await net.fetch(url)
-    if (resp.ok) {
-      return resp
-    }
-    return Promise.reject('')
-  })
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

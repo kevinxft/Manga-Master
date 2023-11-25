@@ -9,6 +9,10 @@ const appendPrefix = (path) => {
   return 'file://' + path
 }
 
+const getMTime = (dir) => {
+  return new Date(fs.statSync(dir).mtime).getTime()
+}
+
 let newWin
 let preUrl
 let isScaning = false
@@ -16,7 +20,7 @@ let isScaning = false
 type MangaType = {
   path: string
   post: string
-  info: fs.Stats
+  mtime: number
 }
 
 const traverse = async (dir, mangas: MangaType[] = []) => {
@@ -29,7 +33,7 @@ const traverse = async (dir, mangas: MangaType[] = []) => {
         mangas.push({
           path: dir,
           post: appendPrefix(path.join(dir, file)),
-          info: fs.statSync(dir)
+          mtime: getMTime(dir)
         })
         break
       }
@@ -52,7 +56,7 @@ const traverseMangas = (dir, callback) => {
           mangas.push({
             path: directory,
             post: appendPrefix(path.join(directory, file)),
-            info: fs.statSync(dir)
+            mtime: getMTime(directory)
           })
           count++
           if (mangas.length > 0 && count % 50 === 0) {
@@ -100,13 +104,11 @@ export const initEvents = (mainWindow: BrowserWindow) => {
   ipcMain.handle('select-folder', async () => {
     try {
       const result = await dialog.showOpenDialog(mainWindow, { properties: ['openDirectory'] })
-      console.log(result)
       if (!result.canceled) {
         return result.filePaths[0]
       }
       return ''
     } catch (error) {
-      console.log(error)
       return ''
     }
   })
@@ -161,7 +163,6 @@ export const initEvents = (mainWindow: BrowserWindow) => {
     newWin.loadURL(url)
     newWin.focus()
     newWin.on('closed', () => {
-      console.log('窗口被关闭')
       newWin = null
     })
   })
