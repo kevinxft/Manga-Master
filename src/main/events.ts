@@ -1,13 +1,12 @@
 import { BrowserWindow, dialog, ipcMain, screen } from 'electron'
 import fs from 'fs'
 import path, { join } from 'path'
-import { CUSTOM_PREFIX } from './constants'
 import { is } from '@electron-toolkit/utils'
 
 const imageExtensionRegex = /\.(jpg|jpeg|png|gif|bmp)$/i
 
 const appendPrefix = (path) => {
-  return `${CUSTOM_PREFIX}://` + path
+  return 'file://' + path
 }
 
 let newWin
@@ -150,6 +149,7 @@ export const initEvents = (mainWindow: BrowserWindow) => {
       titleBarStyle: 'hiddenInset',
       autoHideMenuBar: true,
       webPreferences: {
+        webSecurity: false,
         preload: join(__dirname, '../preload/index.js'),
         sandbox: false
       }

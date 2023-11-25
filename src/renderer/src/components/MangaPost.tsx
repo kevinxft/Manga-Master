@@ -4,7 +4,7 @@ import { useStore } from '@renderer/common/useStore'
 import { HeartFilled, HeartOutlined, SearchOutlined } from '@ant-design/icons'
 
 function formatMangaName(path: string) {
-  return path.split('/').pop()
+  return path ? path.split('/').pop() : path
 }
 
 function MangaPost({ path, post }: MangaType) {

@@ -19,6 +19,7 @@ function createWindow(): void {
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
+      webSecurity: false,
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
     }
@@ -64,7 +65,11 @@ app.whenReady().then(() => {
 
   protocol.handle(CUSTOM_PREFIX, async (request) => {
     const url = request.url.replace(`${CUSTOM_PREFIX}://`, 'file://')
-    return net.fetch(url)
+    const resp = await net.fetch(url)
+    if (resp.ok) {
+      return resp
+    }
+    return Promise.reject('')
   })
 
   app.on('activate', function () {

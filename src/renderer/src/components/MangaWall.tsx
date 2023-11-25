@@ -1,10 +1,10 @@
 import { useStore } from '@renderer/common/useStore'
 import { syncMangas } from '@renderer/common/utils'
-import PostWall, { PostWallType } from './PostWall'
+import PostWall, { PostWallType, PostWallFunc } from './PostWall'
 import TagWall from './TagWall'
 import SearchBar from './SearchBar'
 import Settings from './Settings'
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { forwardRef, useEffect, useRef, useState, useTransition } from 'react'
 import { FAVORITE_SYMBOL } from '@renderer/common/constants'
 import {
   VerticalAlignBottomOutlined,
@@ -20,6 +20,8 @@ import {
   HeartFilled
 } from '@ant-design/icons'
 import { FloatButton, Tag, Button } from 'antd'
+
+const ForwardPostWall = forwardRef(PostWall)
 
 function MangaWall(): JSX.Element {
   const mangas = useStore((state) => state.mangas)
@@ -69,18 +71,12 @@ function MangaWall(): JSX.Element {
     })
   }
 
-  const container = useRef<HTMLDivElement>(null)
-
   const onTop = () => {
-    if (container.current) {
-      container.current.scrollTo({ top: 0 })
-    }
+    postWallRef.current?.toTop()
   }
 
   const onBottom = () => {
-    if (container.current) {
-      container.current.scrollTo({ top: container.current.scrollHeight })
-    }
+    postWallRef.current?.toBottom()
   }
 
   const onShowTags = () => {
@@ -103,16 +99,15 @@ function MangaWall(): JSX.Element {
     }
   }
 
-  const postWallRef = useRef<HTMLDivElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
   const [wrapSize, setWrapSize] = useState<PostWallType>({ width: 0, height: 0 })
 
   useEffect(() => {
     const resize = () => {
-      if (postWallRef.current) {
-        console.log(postWallRef.current.clientWidth, postWallRef.current.clientHeight)
+      if (wrapRef.current) {
         setWrapSize({
-          width: postWallRef.current.clientWidth,
-          height: postWallRef.current.clientHeight
+          width: wrapRef.current.clientWidth,
+          height: wrapRef.current.clientHeight
         })
       }
     }
@@ -122,6 +117,8 @@ function MangaWall(): JSX.Element {
       window.removeEventListener('resize', resize)
     }
   }, [])
+
+  const postWallRef = useRef<PostWallFunc>()
 
   return (
     <>
@@ -135,8 +132,8 @@ function MangaWall(): JSX.Element {
           ))}
         </div>
       )}
-      <div ref={postWallRef} className="flex-1 w-[100%] overflow-hidden">
-        <PostWall {...wrapSize} />
+      <div ref={wrapRef} className="flex-1 w-[100%] overflow-hidden">
+        <ForwardPostWall {...wrapSize} ref={postWallRef} />
       </div>
       <SearchBar visible={showSearch} onCancel={() => setShowSearch(false)} />
       <TagWall visible={showTags} onCancel={() => setShowTags(false)} />
