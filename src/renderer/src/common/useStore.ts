@@ -38,7 +38,7 @@ const initState = {
   tags: [],
   autoTags: [],
   favorites: [],
-  sorted: false,
+  sorted: true,
   interval: 3,
   foldGallaryTools: false
 }

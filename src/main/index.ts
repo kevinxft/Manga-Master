@@ -24,6 +24,8 @@ function createWindow(): void {
     }
   })
 
+  initEvents(mainWindow)
+
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
@@ -59,8 +61,6 @@ app.whenReady().then(() => {
   })
 
   createWindow()
-
-  initEvents(mainWindow)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

@@ -14,6 +14,7 @@ const getMTime = (dir) => {
 }
 
 let newWin
+let preUrl
 let isScaning = false
 
 type MangaType = {
@@ -132,15 +133,17 @@ export const initEvents = (mainWindow: BrowserWindow) => {
   })
 
   ipcMain.on('open-window', function (_, url) {
+    if (newWin && preUrl === url) {
+      newWin.focus()
+      return
+    }
     newWin && newWin.close()
-    const title = url.split('/').pop() || 'Gallary'
     const display = screen.getDisplayMatching(mainWindow.getBounds())
     newWin = new BrowserWindow({
       width: display.workArea.width,
       height: display.workArea.height,
       x: display.workArea.x,
       y: display.workArea.y,
-      title,
       titleBarStyle: 'hiddenInset',
       autoHideMenuBar: true,
       webPreferences: {
@@ -152,6 +155,7 @@ export const initEvents = (mainWindow: BrowserWindow) => {
 
     // is.dev && newWin.webContents.openDevTools()
 
+    preUrl = url
     newWin.loadURL(url)
     newWin.focus()
     newWin.on('closed', () => {
