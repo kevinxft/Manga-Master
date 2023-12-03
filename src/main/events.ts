@@ -3,7 +3,7 @@ import fs from 'fs'
 import path, { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 
-const imageExtensionRegex = /\.(jpg|jpeg|png|gif|bmp)$/i
+const imageExtensionRegex = /\.(jpg|jpeg|png|gif|bmp|webp)$/i
 
 const appendPrefix = (path) => {
   return 'file://' + path
@@ -14,7 +14,6 @@ const getMTime = (dir) => {
 }
 
 let newWin
-let preUrl
 let isScaning = false
 
 type MangaType = {
@@ -133,13 +132,7 @@ export const initEvents = (mainWindow: BrowserWindow) => {
   })
 
   ipcMain.on('open-window', function (_, url) {
-    if (newWin && preUrl === url) {
-      newWin.focus()
-      return
-    } else {
-      newWin && newWin.close()
-    }
-    console.log(url)
+    newWin && newWin.close()
     const title = url.split('/').pop() || 'Gallary'
     const display = screen.getDisplayMatching(mainWindow.getBounds())
     newWin = new BrowserWindow({
@@ -157,9 +150,8 @@ export const initEvents = (mainWindow: BrowserWindow) => {
       }
     })
 
-    is.dev && newWin.webContents.openDevTools()
+    // is.dev && newWin.webContents.openDevTools()
 
-    preUrl = url
     newWin.loadURL(url)
     newWin.focus()
     newWin.on('closed', () => {
