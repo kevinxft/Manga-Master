@@ -1,7 +1,6 @@
 import { BrowserWindow, dialog, ipcMain, screen } from 'electron'
 import fs from 'fs'
 import path, { join } from 'path'
-import { is } from '@electron-toolkit/utils'
 
 const imageExtensionRegex = /\.(jpg|jpeg|png|gif|bmp|webp)$/i
 
@@ -13,9 +12,11 @@ const getMTime = (dir) => {
   return new Date(fs.statSync(dir).mtime).getTime()
 }
 
-let newWin
+let newWin: BrowserWindow
 let preUrl
 let isScaning = false
+let mainWindow: BrowserWindow
+let isInit = false
 
 type MangaType = {
   path: string
@@ -90,7 +91,13 @@ const getAllImg = async (dir: string) => {
   return result
 }
 
-export const initEvents = (mainWindow: BrowserWindow) => {
+export const initEvents = (_mainWindow: BrowserWindow) => {
+  mainWindow = _mainWindow
+  if (isInit) {
+    return
+  }
+  isInit = true
+
   ipcMain.on('scan-mangas', async (event, path) => {
     if (isScaning) {
       return
