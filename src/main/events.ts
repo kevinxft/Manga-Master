@@ -4,16 +4,16 @@ import path, { join } from 'path'
 
 const imageExtensionRegex = /\.(jpg|jpeg|png|gif|bmp|webp)$/i
 
-const appendPrefix = (path) => {
+const appendPrefix = (path: string) => {
   return 'file://' + path
 }
 
-const getMTime = (dir) => {
+const getMTime = (dir: string) => {
   return new Date(fs.statSync(dir).mtime).getTime()
 }
 
 let newWin: BrowserWindow | null
-let preUrl
+let preUrl: string
 let isScaning = false
 let mainWindow: BrowserWindow
 let isInit = false
@@ -24,7 +24,7 @@ type MangaType = {
   mtime: number
 }
 
-const traverse = async (dir, mangas: MangaType[] = []) => {
+const traverse = async (dir: string, mangas: MangaType[] = []) => {
   for (const file of fs.readdirSync(dir)) {
     const fullPath = path.join(dir, file)
     if (fs.statSync(fullPath).isDirectory()) {

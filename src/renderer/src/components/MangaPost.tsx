@@ -2,6 +2,7 @@ import { MangaType } from '@renderer/common/useStore'
 import { Button } from 'antd'
 import { useStore } from '@renderer/common/useStore'
 import { HeartFilled, HeartOutlined, SearchOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 
 function formatMangaName(path: string) {
   return path ? path.split('/').pop() : path
@@ -10,9 +11,9 @@ function formatMangaName(path: string) {
 function MangaPost({ path, post }: MangaType) {
   const favorites = useStore((state) => state.favorites)
   const setFavorites = useStore((state) => state.setFavorites)
+  const navigate = useNavigate()
   const onOpen = () => {
-    const prefix = window.location.origin + window.location.pathname + '#/'
-    window.electron.ipcRenderer.send('open-window', `${prefix}gallary?path=${path}`)
+    navigate(`/gallary?path=${path}`)
   }
 
   const toggleFavorite = (path, checked = true) => {

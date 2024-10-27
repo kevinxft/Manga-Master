@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { message, FloatButton } from 'antd'
 import {
   ColumnHeightOutlined,
@@ -12,7 +12,8 @@ import {
   PlayCircleOutlined,
   PlusOutlined,
   RightOutlined,
-  VerticalAlignMiddleOutlined
+  VerticalAlignMiddleOutlined,
+  RollbackOutlined
 } from '@ant-design/icons'
 import { useStore } from '@renderer/common/useStore'
 
@@ -21,6 +22,8 @@ function Gallary() {
   const setInterval = useStore((state) => state.setInterval)
   const foldGallaryTools = useStore((state) => state.foldGallaryTools)
   const toggleFoldGallaryTools = useStore((state) => state.toggleFoldGallaryTools)
+
+  const navigate = useNavigate()
 
   const [imgs, setImgs] = useState([])
   const [params] = useSearchParams()
@@ -165,6 +168,11 @@ function Gallary() {
               className="bg-white"
               onClick={() => setFitWith((value) => !value)}
               icon={fitWidth ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+            />
+            <FloatButton
+              onClick={() => navigate('/')}
+              className="bg-white"
+              icon={<RollbackOutlined />}
             />
           </>
         )}
