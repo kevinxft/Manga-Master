@@ -12,7 +12,7 @@ const getMTime = (dir) => {
   return new Date(fs.statSync(dir).mtime).getTime()
 }
 
-let newWin: BrowserWindow
+let newWin: BrowserWindow | null
 let preUrl
 let isScaning = false
 let mainWindow: BrowserWindow
